@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Lupo - Dashboard Central</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- STYLE PREMIUM (DARI INDEX.HTML) --- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url('background-web.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-color: #0f172a; 
+            color: white;
+        }
+
+        .glass-container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 25px 20px;
+            border-radius: 24px;
+            box-sizing: border-box;
+        }
+
+        .header-title h2 {
+            text-align: center;
+            color: #1e293b;
+            margin: 0 0 5px 0;
+            font-weight: 700;
+            font-size: 24px;
+            text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+        }
+
+        .header-title p {
+            text-align: center;
+            color: #334155;
+            margin-bottom: 25px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* --- MENU UTAMA --- */
+        .menu-list { display: flex; flex-direction: column; gap: 12px; }
+        .btn-menu {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            padding: 16px;
+            border-radius: 18px;
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+        .btn-menu:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.9); }
+        .btn-snk-special { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; justify-content: center; }
+
+        /* --- HALAMAN-HALAMAN --- */
+        .page-section { display: none; flex-direction: column; width: 100%; }
+        .btn-kembali {
+            background: rgba(255, 255, 255, 0.5);
+            color: #0f172a;
+            border: 1px solid rgba(255,255,255,0.6);
+            padding: 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        /* --- STYLE VIDEO (IDENTIK DENGAN INDEX.HTML) --- */
+        .grid-folder { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .card-folder {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            padding: 20px 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .logo-folder { width: 75px; height: 75px; border-radius: 18px; object-fit: cover; margin-bottom: 12px; background-color: #f1f5f9; }
+        .nama-folder { margin: 0; font-size: 14px; font-weight: 600; color: #0f172a; }
+        
+        .card-video { background: rgba(255, 255, 255, 0.8); border-radius: 20px; overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.9); }
+        video { width: 100%; display: block; background: #000; }
+        .cta-btn { 
+            display: block; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); 
+            color: white; text-decoration: none; padding: 12px; text-align: center; 
+            font-size: 14px; font-weight: 600; text-transform: uppercase;
+        }
+
+        /* --- STYLE AKSES LINK (IDENTIK DENGAN AKSESLINKS&K.HTML) --- */
+        .member-btn { 
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); 
+            padding: 16px; border-radius: 16px; color: white; margin-bottom: 12px; 
+            text-align: left; cursor: pointer; font-weight: 600; width: 100%;
+        }
+        .game-card-link { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 18px; border-radius: 18px; margin-bottom: 15px; }
+        input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(0, 0, 0, 0.4); color: #fff; margin: 10px 0; outline: none; box-sizing: border-box; }
+        .btn-copy-link { background: linear-gradient(135deg, #6366f1, #a855f7); border: none; padding: 14px; border-radius: 12px; color: white; font-weight: 700; width: 100%; cursor: pointer; }
+
+        /* --- STYLE S&K (IDENTIK DENGAN AKSESLINKS&K.HTML) --- */
+        .snk-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 18px; border-radius: 18px; color: #cbd5e1; font-size: 13px; line-height: 1.6; }
+        .snk-title { color: #f59e0b; font-weight: 700; margin-bottom: 5px; font-size: 15px; }
+        .highlight { color: #f59e0b; font-weight: 600; }
+        .danger { color: #ef4444; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        
+        <div id="page-main">
+            <div class="header-title">
+                <h2>TEAM LUPO</h2>
+                <p>Dashboard Central Tools</p>
+            </div>
+            <div class="menu-list">
+                <button class="btn-menu" onclick="showPage('page-link')"><span style="margin-right:15px;">🔗</span> Akses Link MYLEAD</button>
+                <button class="btn-menu" onclick="showPage('page-link-mobidea')"><span style="margin-right:15px;">🔗</span> Akses Link MOBIDEA</button>
+                <button class="btn-menu" onclick="showPage('page-jam')"><span style="margin-right:15px;">⏰</span> Jam Spam (Opsional)</button>
+                <button class="btn-menu" onclick="showPage('page-video')"><span style="margin-right:15px;">🎬</span> Video Acara</button>
+                <button class="btn-menu btn-snk-special" onclick="checkSnk()"><span style="margin-right:15px;">📜</span> S&K Rekrutmen Member</button>
+            </div>
+        </div>
+
+        <div id="page-link" class="page-section">
+            <button class="btn-kembali" onclick="goHome()">⬅ Kembali ke Menu</button>
+            <div id="list-member">
+                <h3 align="center">Pilih Username (MYLEAD)</h3>
+                <button class="member-btn" onclick="openLink('thorfin', 'Thorfin')">🗡️ Thorfin</button>
+                <button class="member-btn" onclick="openLink('poseidon', 'Poseidon')">🔱 Poseidon</button>
+                <button class="member-btn" onclick="openLink('luxury33', 'Luxury33')">💎 Luxury33</button>
+                <button class="member-btn" onclick="openLink('batako', 'Batako')">🧱 Batako</button>
+                <button class="member-btn" onclick="openLink('kahuna', 'Kahuna Laguna')">🌊 Kahuna Laguna</button>
+                <button class="member-btn" onclick="openLink('angin', 'Angin')">🌪️ Angin</button>
+            </div>
+            <div id="detail-link" style="display:none;">
+                <h3 align="center" id="active-name" style="color:#38bdf8;"></h3>
+                <div id="render-links"></div>
+            </div>
+        </div>
+
+        <div id="page-link-mobidea" class="page-section">
+            <button class="btn-kembali" onclick="goHome()">⬅ Kembali ke Menu</button>
+            <div id="list-member-mobidea">
+                <h3 align="center">Pilih Username (MOBIDEA)</h3>
+                <button class="member-btn" onclick="openLinkMobidea('thorfin', 'Thorfin')">🗡️ Thorfin</button>
+                <button class="member-btn" onclick="openLinkMobidea('poseidon', 'Poseidon')">🔱 Poseidon</button>
+                <button class="member-btn" onclick="openLinkMobidea('luxury33', 'Luxury33')">💎 Luxury33</button>
+                <button class="member-btn" onclick="openLinkMobidea('batako', 'Batako')">🧱 Batako</button>
+                <button class="member-btn" onclick="openLinkMobidea('kahuna', 'Kahuna Laguna')">🌊 Kahuna Laguna</button>
+                <button class="member-btn" onclick="openLinkMobidea('angin', 'Angin')">🌪️ Angin</button>
+            </div>
+            <div id="detail-link-mobidea" style="display:none;">
+                <h3 align="center" id="active-name-mobidea" style="color:#38bdf8;"></h3>
+                <div id="render-links-mobidea"></div>
+            </div>
+        </div>
+
+        <div id="page-jam" class="page-section">
+            <button class="btn-kembali" onclick="goHome()">⬅ Kembali ke Menu</button>
+            <div class="snk-card" style="text-align: center; color: white;">
+                <h3>⏰ Rekomendasi Jam Spam ⏰</h3>
+                <p style="font-size: 16px;">
+                    🥇 <span class="highlight">23.00 – 02.00 WIB</span> (TERBAIK)<br>
+                    🥈 05.00 – 07.00 WIB<br>
+                    🥉 20.00 – 22.00 WIB
+                </p>
+            </div>
+        </div>
+
+        <div id="page-video" class="page-section">
+            <button class="btn-kembali" onclick="goHome()">⬅ Kembali ke Menu</button>
+            <div id="video-folder-view" class="grid-folder">
+                <div class="card-folder" onclick="openVideo('monopoly', 'Monopoly Go')">
+                    <img src="logo-monopoly.png" alt="Monopoly Go" class="logo-folder">
+                    <p class="nama-folder">Monopoly Go</p>
+                </div>
+                <div class="card-folder" onclick="openVideo('gossip', 'Gossip Harbor')">
+                    <img src="logo-gossip.jpeg" alt="Gossip Harbor" class="logo-folder">
+                    <p class="nama-folder">Gossip Harbor</p>
+                </div>
+                <div class="card-folder" onclick="openVideo('match', 'Match Master')">
+                    <img src="logo-match.png" alt="Match Master" class="logo-folder">
+                    <p class="nama-folder">Match Master</p>
+                </div>
+                <div class="card-folder" onclick="openVideo('travel', 'Travel Town')">
+                    <img src="logo-travel.jpeg" alt="Travel Town" class="logo-folder">
+                    <p class="nama-folder">Travel Town</p>
+                </div>
+            </div>
+            <div id="video-list-view" style="display:none;">
+                <button class="btn-kembali" onclick="closeVideo()" style="background:rgba(255,255,255,0.2)">⬅ Kembali ke Kategori</button>
+                <h3 align="center" id="active-game-title"></h3>
+                <div id="render-videos"></div>
+            </div>
+        </div>
+
+        <div id="page-snk" class="page-section">
+            <button class="btn-kembali" onclick="goHome()">⬅ Kembali ke Menu Utama</button>
+            <div class="header-title">
+                <h2 style="color: #f59e0b;">S&K MENTORING</h2>
+            </div>
+            <div class="snk-card">
+                <div class="snk-title">1. Tanggung Jawab Edukasi & Larangan Keras 🚫</div>
+                <p>Sebagai pihak yang mengajak (Mentor), kalian WAJIB mengajarkan cara kerja yang benar. Tegaskan kepada member baru larangan mutlak ini: <span class="danger">DILARANG KERAS</span> menggunakan BOT atau melakukan self-click (nuyul link sendiri) menggunakan VPN. Pelanggaran akan berakibat fatal pada semua orang termasuk atmin.</p>
+
+                <div class="snk-title">2. Sistem Margin / Set Rate Pendapatan 💰</div>
+                <p>anda bebas menentukan rate untuk orang yang anda ajak, dengan syarat rate tersebut harus lebih rendah dari rate asli anda. (Contoh: Jika rate anda 11k, anda bisa atur rate member yang di ajak di 10k atau sesuai kesepakatan selisih 1k). Selisih rate ini adalah murni keuntungan anda. <span class="highlight">sisanya untuk biaya domain dan pajak wd. </span></p>
+
+                <div class="snk-title">3. Persiapan Username (Sub-ID MyLead) 🆔</div>
+                <p>Sebelum mendaftarkan member, pastikan kalian sudah menyiapkan satu Username khusus untuk mereka. Username ini akan dijadikan parameter Sub-ID di MyLead agar hasil kerja (lead) mereka bisa dilacak dengan akurat.</p>
+
+                <div class="snk-title">4. Akses Komunitas 📢</div>
+                <p>Member yang baru diajak <span class="danger">TIDAK DIIZINKAN</span> dimasukkan ke dalam Grup Chat utama. Mereka hanya diperbolehkan untuk dimasukkan ke dalam Channel informasi saja.</p>
+
+                <div class="snk-title">5. Sistem Payout / Withdraw (WD) 💳</div>
+                <p>Jika member kalian berhasil menghasilkan ($) dan sudah waktunya pencairan (WD), maka seluruh dana akan ditransfer ke rekening pihak yang mengajak (Mentor). Kalian yang bertanggung jawab penuh untuk meneruskan pembayaran tersebut ke member kalian masing-masing.</p>
+
+                <div class="snk-title">6. Konfirmasi ke Admin 📩</div>
+                <p>Jika semua hal di atas sudah dijelaskan, dan member baru sudah paham serta deal dengan sistem/rate-nya, silakan langsung hubungi Admin <span class="highlight">@xzeevix</span>. Kirimkan Username yang sudah disiapkan untuk diproses lebih lanjut.</p>
+                
+                <p align="center" style="margin-top:20px;">📄 : Mari bangun tim yang solid dan NAWIT bareng! 🔥</p>
+                <button class="btn-copy-link" style="background: #2563eb;" onclick="window.location.href='https://t.me/xzeevix'">HUBUNGI ADMIN SEKARANG</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const PASS_SNK = "666Lupo666";
+
+        // DATA LINK MYLEAD
+        const linksData = {
+            'thorfin': { monopoly: "", dicedreams: "", travel: "", match: "", dating: "" },
+            'poseidon': { monopoly: "", dicedrems: "", travel: "", match: "", dating: "-" },
+            'luxury33': { monopoly: "", dicedreams: "", travel: "-", match: "-", dating: "-" },
+            'batako': { monopoly: "", dicedreams: "", travel: "-", match: "", dating: "-" },
+            'kahuna': { monopoly: "", dicedreams: "", travel: "", match: "", dating: "-" },
+            'angin': { monopoly: "", dicedreams: "https://tinyurl.com/mt8rr4r3", travel: "https://tinyurl.com/47xer297", match: "", dating: "" }
+        };
+
+        // DATA LINK MOBIDEA (Silakan edit link di sini nantinya)
+        const linksMobideaData = {
+            'thorfin': { monopoly: "", gossip: "", travel: "", match: "", dicedreams: "" },
+            'poseidon': { monopoly: "", gossip: "", travel: "", match: "", dicedreams: "-" },
+            'luxury33': { monopoly: "", gossip: "", travel: "-", match: "-", dicedreams: "-" },
+            'batako': { monopoly: "", gossip: "", travel: "-", match: "", dicedreams: "-" },
+            'kahuna': { monopoly: "", gossip: "", travel: "", match: "", dicedreams: "-" },
+            'angin': { monopoly: "", gossip: "", travel: "https://tinyurl.com/p93y2p86", match: "", dicedreams: "https://tinyurl.com/ycysc8mv" }
+        };
+
+        const vidsData = {
+            'monopoly': ['video-monopoly-1.mp4', 'video-monopoly-2.mp4', 'video-monopoly-3.mp4', 'video-monopoly-4.mp4'],
+            'gossip': ['video-gossip-1.mp4', 'video-gossip-2.mp4', 'video-gossip-3.mp4'],
+            'match': ['video-match-1.mp4', 'video-match-2.mp4'],
+            'travel': ['video-travel-1.mp4', 'video-travel-2.mp4', 'video-travel-3.mp4']
+        };
+
+        function showPage(id) {
+            document.getElementById('page-main').style.display = 'none';
+            document.querySelectorAll('.page-section').forEach(s => s.style.display = 'none');
+            document.getElementById(id).style.display = 'flex';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goHome() {
+            document.querySelectorAll('.page-section').forEach(s => s.style.display = 'none');
+            document.getElementById('page-main').style.display = 'block';
+            
+            // Reset Tampilan Link agar selalu kembali ke menu daftar nama
+            document.getElementById('list-member').style.display = 'block';
+            document.getElementById('detail-link').style.display = 'none';
+            document.getElementById('list-member-mobidea').style.display = 'block';
+            document.getElementById('detail-link-mobidea').style.display = 'none';
+            
+            closeVideo();
+        }
+
+        // FUNGSI UNTUK MYLEAD
+        function openLink(id, nama) {
+            document.getElementById('list-member').style.display = 'none';
+            document.getElementById('detail-link').style.display = 'block';
+            document.getElementById('active-name').innerText = nama + " (MyLead)";
+            const area = document.getElementById('render-links');
+            area.innerHTML = '';
+            const data = linksData[id];
+            for (const [game, url] of Object.entries(data)) {
+                if(url === "-") continue;
+                area.innerHTML += `
+                    <div class="game-card-link">
+                        <span style="font-weight:700;">${game.toUpperCase()}</span>
+                        <input type="text" value="${url}" id="in-${id}-${game}" readonly>
+                        <button class="btn-copy-link" onclick="copyFunc('in-${id}-${game}', this)">Salin Link</button>
+                    </div>`;
+            }
+        }
+
+        // FUNGSI UNTUK MOBIDEA
+        function openLinkMobidea(id, nama) {
+            document.getElementById('list-member-mobidea').style.display = 'none';
+            document.getElementById('detail-link-mobidea').style.display = 'block';
+            document.getElementById('active-name-mobidea').innerText = nama + " (Mobidea)";
+            const area = document.getElementById('render-links-mobidea');
+            area.innerHTML = '';
+            const data = linksMobideaData[id];
+            for (const [game, url] of Object.entries(data)) {
+                if(url === "-") continue;
+                area.innerHTML += `
+                    <div class="game-card-link">
+                        <span style="font-weight:700;">${game.toUpperCase()}</span>
+                        <input type="text" value="${url}" id="in-mob-${id}-${game}" readonly>
+                        <button class="btn-copy-link" onclick="copyFunc('in-mob-${id}-${game}', this)">Salin Link</button>
+                    </div>`;
+            }
+        }
+
+        function openVideo(id, judul) {
+            document.getElementById('video-folder-view').style.display = 'none';
+            document.getElementById('video-list-view').style.display = 'block';
+            document.getElementById('active-game-title').innerText = judul;
+            const area = document.getElementById('render-videos');
+            area.innerHTML = '';
+            vidsData[id].forEach((v, i) => {
+                area.innerHTML += `
+                    <div class="card-video">
+                        <video src="${v}" controls></video>
+                        <a href="${v}" download class="cta-btn">Download Part ${i+1}</a>
+                    </div>`;
+            });
+        }
+
+        function closeVideo() {
+            document.getElementById('video-folder-view').style.display = 'grid';
+            document.getElementById('video-list-view').style.display = 'none';
+            document.querySelectorAll('video').forEach(v => v.pause());
+        }
+
+        function checkSnk() {
+            let p = prompt("Masukkan Kata Sandi Akses S&K:");
+            if(p === PASS_SNK) showPage('page-snk');
+            else if(p !== null) alert("Kata sandi salah!");
+        }
+
+        function copyFunc(id, btn) {
+            const input = document.getElementById(id);
+            input.select();
+            navigator.clipboard.writeText(input.value);
+            btn.innerText = "Tersalin ✓";
+            setTimeout(() => { btn.innerText = "Salin Link"; }, 1500);
+        }
+    </script>
+</body>
+</html>
