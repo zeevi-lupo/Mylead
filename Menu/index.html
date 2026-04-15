@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Lupo - Dashboard Central</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* --- GAYA DASAR --- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url('background-web.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-color: #0f172a; 
+            color: white;
+        }
+
+        /* --- WADAH UTAMA (RESPONSIF) --- */
+        .glass-container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            padding: 30px 20px;
+            border-radius: 24px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .header-title h2 {
+            text-align: center;
+            color: #f8fafc;
+            margin: 0 0 5px 0;
+            font-weight: 700;
+            font-size: 26px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .header-title p {
+            text-align: center;
+            color: #cbd5e1;
+            margin-bottom: 30px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* --- MENU UTAMA & GRID --- */
+        .menu-list { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 15px; 
+        }
+        
+        @media (min-width: 600px) {
+            .menu-list { grid-template-columns: 1fr 1fr; }
+            .btn-snk-special { grid-column: span 2; }
+            .glass-container { padding: 40px; }
+        }
+
+        .btn-menu {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            padding: 18px;
+            border-radius: 16px;
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-menu:active { transform: scale(0.98); }
+        .btn-menu:hover { transform: translateY(-3px); background: #ffffff; }
+        .btn-snk-special { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; justify-content: center; text-align: center; }
+
+        /* --- HALAMAN & TOMBOL KEMBALI --- */
+        .page-section { display: none; flex-direction: column; width: 100%; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .btn-kembali {
+            background: rgba(255, 255, 255, 0.2);
+            color: #f8fafc;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 25px;
+            width: 100%;
+            transition: 0.3s;
+        }
+        .btn-kembali:hover { background: rgba(255, 255, 255, 0.3); }
+
+        /* --- LIST MEMBER & LINK --- */
+        .grid-member { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        .member-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 16px; border-radius: 16px; color: white; text-align: left; cursor: pointer; font-weight: 600; width: 100%; transition: 0.2s; }
+        .member-btn:hover { background: rgba(255, 255, 255, 0.2); }
+        .game-card-link { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); padding: 18px; border-radius: 18px; margin-bottom: 15px; }
+        input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.1); color: #fff; margin: 10px 0; outline: none; box-sizing: border-box; font-size: 14px;}
+        .btn-copy-link { background: linear-gradient(135deg, #6366f1, #a855f7); border: none; padding: 14px; border-radius: 12px; color: white; font-weight: 700; width: 100%; cursor: pointer; transition: 0.2s; }
+
+        /* --- GRID VIDEO --- */
+        .grid-folder { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 16px; }
+        .card-folder { background: rgba(255, 255, 255, 0.8); border-radius: 20px; padding: 20px 10px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.9); cursor: pointer; transition: 0.3s; }
+        .logo-folder { width: 75px; height: 75px; border-radius: 18px; object-fit: cover; margin-bottom: 12px; background-color: #f1f5f9; }
+        .nama-folder { margin: 0; font-size: 14px; font-weight: 600; color: #0f172a; }
+        .grid-videos-render { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .card-video { background: rgba(0, 0, 0, 0.5); border-radius: 20px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.2); }
+        video { width: 100%; display: block; background: #000; }
+        .cta-btn { display: block; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; text-decoration: none; padding: 15px; text-align: center; font-size: 14px; font-weight: 600; text-transform: uppercase; }
+
+        /* --- S&K --- */
+        .snk-card { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); padding: 25px; border-radius: 18px; color: #cbd5e1; font-size: 14px; line-height: 1.7; }
+        .snk-title { color: #f59e0b; font-weight: 700; margin-bottom: 8px; font-size: 16px; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 5px; }
+        .highlight { color: #f59e0b; font-weight: 600; }
+        .danger { color: #ef4444; font-weight: 600; }
+
+        /* --- POSTBACK: FILTER & CHART --- */
+        .postback-container { background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 18px; padding: 20px; width: 100%; box-sizing: border-box; overflow-x: auto; margin-top: 15px; }
+        
+        .filter-box { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-select { flex: 1; min-width: 130px; padding: 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); color: white; font-family: 'Poppins', sans-serif; outline: none; cursor: pointer; }
+        .filter-select option { background: #0f172a; color: white; }
+        
+        .chart-wrapper { width: 100%; max-width: 250px; margin: 0 auto 20px auto; }
+        
+        .header-postback { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; min-width: 500px; }
+        .btn-refresh { background: #3b82f6; border: none; padding: 10px 15px; border-radius: 8px; color: white; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-refresh:active { transform: scale(0.95); }
+
+        .table-postback { width: 100%; min-width: 600px; border-collapse: collapse; text-align: left; font-size: 13px; color: white; }
+        .table-postback th { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.3); font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+        .table-postback td { padding: 15px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .table-postback tr:hover { background: rgba(255,255,255,0.05); }
+
+        /* Scrollbar Tabel */
+        .postback-container::-webkit-scrollbar { height: 8px; }
+        .postback-container::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+        .postback-container::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        
+        <div id="page-main">
+            <div class="header-title">
+                <h2 style="color: #fff;">TEAM LUPO</h2>
+                <p>Dashboard Central Tools</p>
+            </div>
+            <div class="menu-list">
+                <button class="btn-menu" onclick="showPage('page-link')"><span style="margin-right:15px; font-size: 20px;">🔗</span> Akses Link MYLEAD</button>
+                <button class="btn-menu" onclick="showPage('page-jam')"><span style="margin-right:15px; font-size: 20px;">⏰</span> Jam Spam</button>
+                <button class="btn-menu" onclick="showPage('page-video')"><span style="margin-right:15px; font-size: 20px;">🎬</span> Video Acara</button>
+                <button class="btn-menu" onclick="showPage('page-postback')"><span style="margin-right:15px; font-size: 20px;">📡</span> Live Postback</button>
+                <button class="btn-menu btn-snk-special" onclick="checkSnk()"><span style="margin-right:10px; font-size: 20px;">📜</span> S&K Rekrutmen Member</button>
+            </div>
+        </div>
+
+        <div id="page-link" class="page-section">
+            <button class="btn-kembali" onclick="goHome()">⬅ Kembali ke Menu Utama</button>
+            <div id="list-member">
+                <h3 align="center" style="margin-bottom: 20px; font-weight: 600;">Pilih Username</h3>
+                <div class="grid-member">
+                    <button class="member-btn" onclick="openLink('thorfin', 'Thorfin')">🗡️ Thorfin</button>
+                    <button class="member-btn" onclick="openLink('poseidon', 'Poseidon')">🔱 Poseidon</button>
+                    <button class="member-btn" onclick="openLink('luxury33', 'Luxury33')">💎 Luxury33</button>
+                    <button class="member-btn" onclick="openLink('batako', 'Batako')">🧱 Batako</button>
+                    <button class="member-btn" onclick="openLink('kahuna', 'Kahuna Laguna')">🌊 Kahuna</button>
+                    <button class="member-btn" onclick="openLink('angin', 'Angin')">🌪️ Angin</button>
+                    <button class="member-btn" onclick="openLink('hiltopia', 'Hiltopia')">🏕️ Hiltopia</button>
+                    <button class="member-btn" onclick="openLink('ucup', 'ucup')">👽 Ucup</button>
+                </div>
+            </div>
+            <div id="detail-link" style="display:none;">
+                <h3 align="center" id="active-name" style="color:#38bdf8; margin-bottom: 20px;"></h3>
+                <div id="render-links"></div>
+            </div>
+        </div>
+
+        <div id="page-jam" class="page-section">
+            <button class="btn-kembali" onclick="goHome()">⬅ Kembali ke Menu Utama</button>
+            <div class="snk-card" style="text-align: center;">
+                <h3 style="color: #fff; margin-top: 0;">⏰ Rekomendasi Jam Spam ⏰</h3>
+                <p style="font-size: 16px; margin-bottom: 0;">
+                    🥇 <span class="highlight">23.00 – 02.00 WIB</span> (TERBAIK)<br><br>
+                    🥈 05.00 – 07.00 WIB<br><br>
+                    🥉 20.00 – 22.00 WIB
+                </p>
+            </div>
+        </div>
+
+        <div id="page-video" class="page-section">
+            <button class="btn-kembali" onclick="goHome()">⬅ Kembali ke Menu Utama</button>
+            <div id="video-folder-view" class="grid-folder">
+                <div class="card-folder" onclick="openVideo('monopoly', 'Monopoly Go')">
+                    <img src="logo-monopoly.png" alt="Monopoly" class="logo-folder">
+                    <p class="nama-folder">Monopoly Go</p>
+                </div>
+                <div class="card-folder" onclick="openVideo('gossip', 'Gossip Harbor')">
+                    <img src="logo-gossip.jpeg" alt="Gossip" class="logo-folder">
+                    <p class="nama-folder">Gossip Harbor</p>
+                </div>
+                <div class="card-folder" onclick="openVideo('match', 'Match Master')">
+                    <img src="logo-match.png" alt="Match" class="logo-folder">
+                    <p class="nama-folder">Match Master</p>
+                </div>
+                <div class="card-folder" onclick="openVideo('travel', 'Travel Town')">
+                    <img src="logo-travel.jpeg" alt="Travel" class="logo-folder">
+                    <p class="nama-folder">Travel Town</p>
+                </div>
+                <div class="card-folder" onclick="openVideo('dicedreams', 'Dice Dreams')">
+                    <img src="logo-dicedreams.jpeg" alt="Dice" class="logo-folder">
+                    <p class="nama-folder">Dice Dreams</p>
+                </div>
+            </div>
+            <div id="video-list-view" style="display:none;">
+                <button class="btn-kembali" onclick="closeVideo()" style="background:rgba(255,255,255,0.1); border-color: transparent;">⬅ Ganti Game</button>
+                <h3 align="center" id="active-game-title" style="margin-bottom: 20px;"></h3>
+                <div id="render-videos" class="grid-videos-render"></div>
+            </div>
+        </div>
+
+        <div id="page-postback" class="page-section">
+            <button class="btn-kembali" onclick="goHome()">⬅ Kembali ke Menu Utama</button>
+            
+            <div class="header-title">
+                <h2 style="color: #10b981; text-shadow: none;">DATA CONVERSI</h2>
+                <p style="color: #cbd5e1;">Monitoring Lead Real-Time</p>
+            </div>
+
+            <div class="filter-box">
+                <select id="filter-subid" class="filter-select" onchange="applyFilter()">
+                    <option value="all">Semua Sub-ID</option>
+                </select>
+                <select id="filter-status" class="filter-select" onchange="applyFilter()">
+                    <option value="all">Semua Status</option>
+                    <option value="accepted">Accepted</option>
+                    <option value="pending">Pending</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+
+            <div class="chart-wrapper">
+                <canvas id="statusChart"></canvas>
+            </div>
+
+            <div class="postback-container">
+                <div class="header-postback">
+                    <span style="font-size: 14px; font-weight: 600; color: #f8fafc;">Riwayat Lead</span>
+                    <button class="btn-refresh" onclick="fetchPostbackData()">🔄 Sinkron Data</button>
+                </div>
+                
+                <table class="table-postback">
+                    <thead>
+                        <tr>
+                            <th>Waktu</th>
+                            <th>Sub-ID</th>
+                            <th>Program</th>
+                            <th>GEO</th>
+                            <th>Payout</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-postback-body">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px; color: #94a3b8;">Menunggu penarikan data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="page-snk" class="page-section">
+            <button class="btn-kembali" onclick="goHome()">⬅ Kembali ke Menu Utama</button>
+            <div class="header-title">
+                <h2 style="color: #f59e0b; text-shadow: none;">S&K MENTORING</h2>
+            </div>
+            <div class="snk-card">
+                <div class="snk-title">1. Tanggung Jawab Edukasi & Larangan Keras 🚫</div>
+                <p>DILARANG KERAS menggunakan BOT atau melakukan self-click (nuyul link sendiri) menggunakan VPN.</p>
+                <button class="btn-copy-link" style="background: #2563eb; margin-top: 10px;" onclick="window.location.href='https://t.me/xzeevix'">HUBUNGI ADMIN SEKARANG</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const PASS_SNK = "666Lupo666";
+
+        // DATA LINK & VIDEO
+        const linksData = {
+            'thorfin': { monopoly: "https://tinyurl.com/yadtctrk", dicedreams: "https://tinyurl.com/a9yfkaup", travel: "https://tinyurl.com/3esk5wtj", match: "", gossip: "https://tinyurl.com/5469kxp7", traveltown_dating: "https://tinyurl.com/k57ssmwe"},
+            'poseidon': { monopoly: "https://tinyurl.com/mtd6uwhw", dicedrems: "https://tinyurl.com/2unv3yv2", travel: "https://tinyurl.com/y9j29w6t", match: "", gossip: "https://tinyurl.com/muxk8ze6", traveltown_dating: "https://tinyurl.com/7k83he4d" },
+            'luxury33': { monopoly: "https://tinyurl.com/zc9zbust", dicedreams: "https://tinyurl.com/mszxnme8", travel: "https://tinyurl.com/26tefvej", match: "-", gossip: "https://tinyurl.com/y494w6nt" },
+            'batako': { monopoly: "https://tinyurl.com/5n8mvu3y", dicedreams: "https://tinyurl.com/2kkf495x", travel: "https://tinyurl.com/42avcdk7", match: "", gossip: "https://tinyurl.com/3cuhjtmz" },
+            'kahuna': { monopoly: "https://tinyurl.com/2pzzwz6e", dicedreams: "https://tinyurl.com/pu3w5k3", travel: "https://tinyurl.com/mpjr8eck", match: "", gossip: "https://tinyurl.com/3kz2mvu4" },
+            'angin': { monopoly: "https://tinyurl.com/5n98ww92", dicedreams: "https://tinyurl.com/mt8rr4r3", travel: "https://tinyurl.com/47xer297", match: "", gossip: "https://tinyurl.com/rmddn4p", traveltown_dating: "https://tinyurl.com/5cnmbr5r"},
+            'hiltopia': { monopoly: "https://tinyurl.com/3259y237", dicedreams: "https://tinyurl.com/3j3cmkm6", travel: "https://tinyurl.com/3mf3vfs6", match: "", gossip: "https://tinyurl.com/yc43wh6k" }, 
+            'ucup': { monopoly: "", dicedreams: "", travel: "https://tinyurl.com/yfy697c2", match: "", gossip: "https://tinyurl.com/k57ssmwe" }
+        };
+
+        const vidsData = {
+            'monopoly': ['video-monopoly-1.mp4', 'video-monopoly-2.mp4'], // Disimulasikan pendek untuk hemat baris
+            'gossip': ['video-gossip-1.mp4'],
+            'match': ['video-match-1.mp4'],
+            'travel': ['video-travel-1.mp4'],
+            'dicedreams': ['video-dicedreams-1.mp4'] 
+        };
+        
+        // NAVIGASI UTAMA
+        function showPage(id) {
+            document.getElementById('page-main').style.display = 'none';
+            document.querySelectorAll('.page-section').forEach(s => s.style.display = 'none');
+            document.getElementById(id).style.display = 'flex';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if(id === 'page-postback') {
+                fetchPostbackData();
+            }
+        }
+
+        function goHome() {
+            document.querySelectorAll('.page-section').forEach(s => s.style.display = 'none');
+            document.getElementById('page-main').style.display = 'block';
+            document.getElementById('list-member').style.display = 'block';
+            document.getElementById('detail-link').style.display = 'none';
+            closeVideo();
+        }
+
+        // LINK & VIDEO FUNGSI
+        function openLink(id, nama) {
+            document.getElementById('list-member').style.display = 'none';
+            document.getElementById('detail-link').style.display = 'block';
+            document.getElementById('active-name').innerText = nama + " (MyLead)";
+            const area = document.getElementById('render-links');
+            area.innerHTML = '';
+            for (const [game, url] of Object.entries(linksData[id])) {
+                if(url === "-" || url === "") continue;
+                area.innerHTML += `
+                    <div class="game-card-link">
+                        <span style="font-weight:700; color: #f8fafc; text-transform: uppercase;">${game}</span>
+                        <input type="text" value="${url}" id="in-${id}-${game}" readonly>
+                        <button class="btn-copy-link" onclick="copyFunc('in-${id}-${game}', this)">Salin Link</button>
+                    </div>`;
+            }
+        }
+
+        function copyFunc(id, btn) {
+            const input = document.getElementById(id);
+            input.select();
+            navigator.clipboard.writeText(input.value);
+            btn.innerText = "Tersalin ✓";
+            btn.style.background = "#10b981";
+            setTimeout(() => { btn.innerText = "Salin Link"; btn.style.background = "linear-gradient(135deg, #6366f1, #a855f7)"; }, 1500);
+        }
+
+        function openVideo(id, judul) {
+            document.getElementById('video-folder-view').style.display = 'none';
+            document.getElementById('video-list-view').style.display = 'block';
+            document.getElementById('active-game-title').innerText = judul;
+            const area = document.getElementById('render-videos');
+            area.innerHTML = '';
+            vidsData[id].forEach((v, i) => {
+                area.innerHTML += `<div class="card-video"><video src="${v}" controls></video><a href="${v}" download class="cta-btn">Download Part ${i+1}</a></div>`;
+            });
+        }
+
+        function closeVideo() {
+            document.getElementById('video-folder-view').style.display = 'grid';
+            document.getElementById('video-list-view').style.display = 'none';
+            document.querySelectorAll('video').forEach(v => v.pause());
+        }
+
+        function checkSnk() {
+            let p = prompt("Masukkan Kata Sandi Akses S&K:");
+            if(p === PASS_SNK) showPage('page-snk');
+            else if(p !== null) alert("Kata sandi salah!");
+        }
+
+        // ==========================================
+        // SISTEM POSTBACK, FILTER & CHART
+        // ==========================================
+        const URL_API_POSTBACK = "https://script.google.com/macros/s/AKfycbzBhsq8N2PHR8h2huEq6RlM0v4NGZizbhTMV110dby8eqI2gBfe5kvzLMiA5nqXCUNm/exec"; // JANGAN LUPA GANTI INI
+        
+        let globalPostbackData = []; // Simpan semua data dari GAS
+        let statusChartInstance = null; // Simpan instance chart
+
+        function fetchPostbackData() {
+            const tbody = document.getElementById('tabel-postback-body');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #3b82f6; font-weight: 600;">⏳ Sedang sinkronisasi data...</td></tr>';
+
+            fetch(URL_API_POSTBACK)
+                .then(response => response.json())
+                .then(data => {
+                    globalPostbackData = data.reverse(); // Data terbaru di atas
+                    populateSubIdFilter(); // Update isi dropdown
+                    applyFilter(); // Render tabel & chart sesuai filter (default: Semua)
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #ef4444;">❌ Gagal mengambil data API.</td></tr>';
+                });
+        }
+
+        // 1. Mengisi Dropdown Filter Sub-ID secara Otomatis
+        function populateSubIdFilter() {
+            const select = document.getElementById('filter-subid');
+            // Ambil semua sub-id unik dari data
+            const uniqueSubIds = [...new Set(globalPostbackData.map(item => item.ml_sub1))].filter(Boolean);
+            
+            select.innerHTML = '<option value="all">Semua Sub-ID</option>';
+            uniqueSubIds.forEach(subId => {
+                select.innerHTML += `<option value="${subId}">${subId}</option>`;
+            });
+        }
+
+        // 2. Terapkan Filter & Update Tampilan (Tabel + Chart)
+        function applyFilter() {
+            const filterSubId = document.getElementById('filter-subid').value;
+            const filterStatus = document.getElementById('filter-status').value.toLowerCase();
+
+            // Saring data
+            const filteredData = globalPostbackData.filter(row => {
+                const matchSubId = filterSubId === 'all' || row.ml_sub1 === filterSubId;
+                const matchStatus = filterStatus === 'all' || (row.status && row.status.toLowerCase() === filterStatus);
+                return matchSubId && matchStatus;
+            });
+
+            renderTable(filteredData);
+            renderChart(filteredData);
+        }
+
+        // 3. Render Data ke Tabel
+        function renderTable(data) {
+            const tbody = document.getElementById('tabel-postback-body');
+            tbody.innerHTML = ''; 
+
+            if(data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #94a3b8;">Tidak ada data ditemukan untuk filter ini.</td></tr>';
+                return;
+            }
+
+            data.forEach(row => {
+                let warnaStatus = row.status.toLowerCase() === 'accepted' ? '#10b981' : 
+                                  row.status.toLowerCase() === 'pending' ? '#f59e0b' : '#ef4444';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="color: #cbd5e1;">${row.waktu || '-'}</td>
+                        <td style="font-weight: 700; color: #38bdf8;">${row.ml_sub1 || '-'}</td>
+                        <td>${row.program_name || '-'}</td>
+                        <td><span style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 6px; font-weight: 600;">${row.country_code ? row.country_code.toUpperCase() : '-'}</span></td>
+                        <td style="font-weight: 700; color: #10b981;">${row.payout_decimal || '0'} ${row.currency || ''}</td>
+                        <td style="font-weight: 700; color: ${warnaStatus};">${row.status ? row.status.toUpperCase() : '-'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 4. Render Grafik Donat dengan Chart.js
+        function renderChart(data) {
+            // Hitung jumlah masing-masing status
+            let counts = { accepted: 0, pending: 0, rejected: 0 };
+            data.forEach(row => {
+                let s = row.status ? row.status.toLowerCase() : '';
+                if(counts[s] !== undefined) counts[s]++;
+            });
+
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            const chartData = [counts.accepted, counts.pending, counts.rejected];
+
+            // Jika chart sudah ada, perbarui datanya (biar ada animasinya)
+            if(statusChartInstance) {
+                statusChartInstance.data.datasets[0].data = chartData;
+                statusChartInstance.update();
+                return;
+            }
+
+            // Buat chart baru jika belum ada
+            statusChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Accepted', 'Pending', 'Rejected'],
+                    datasets: [{
+                        data: chartData,
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], // Hijau, Kuning, Merah
+                        borderColor: '#0f172a',
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#cbd5e1', font: { family: 'Poppins' } } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
