@@ -79,12 +79,18 @@ function showPage(pageId, btnElement) {
 // --- API DATA & TRANSLATOR ---
 function terjemahkanStatus(rawStatus) {
     let s = rawStatus ? String(rawStatus).toLowerCase().trim() : '';
-    if (s === '2' || s === 'approve' || s === 'accepted') return 'approve';
+    
+    // Jika data berisi angka 0 atau tulisan approve/approved/accepted
+    if (s === '0' || s === 'approve' || s === 'approved' || s === 'accepted') return 'approve';
+    
+    // Jika data berisi angka 1 atau tulisan pending
     if (s === '1' || s === 'pending') return 'pending';
-    if (s === '0' || s === 'rejected') return 'rejected';
+    
+    // Jika data berisi angka 3 atau tulisan pre_approve
     if (s === '3' || s === 'pre_approve') return 'pre_approve';
-    if (s === '[status]') return 'approve'; 
-    return 'rejected'; 
+    
+    // Jika data selain di atas (termasuk angka 2 atau tulisan rejected)
+    return 'rejected';
 }
 
 function fetchPostbackData() {
