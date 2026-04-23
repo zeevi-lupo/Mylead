@@ -87,7 +87,7 @@ function terjemahkanStatus(rawStatus) {
     if (s === '1' || s === 'pending') return 'pending';
     
     // Jika data berisi angka 3 atau tulisan pre_approve
-    if (s === '3' || s === 'pre_approve') return 'pre_approve';
+    if (s === '3' || s === 'pre_approve' || s === 'pre_approved') return 'pre_approve';
     
     // Jika data selain di atas (termasuk angka 2 atau tulisan rejected)
     return 'rejected';
