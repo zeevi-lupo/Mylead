@@ -285,6 +285,7 @@ function renderChartAndSummary(data) {
     document.getElementById('sum-approve').innerText = counts.approve;
     document.getElementById('sum-pending').innerText = counts.pending;
     document.getElementById('sum-rejected').innerText = counts.rejected;
+    if(document.getElementById('sum-preapprove')) document.getElementById('sum-preapprove').innerText = counts.pre_approve;
 
     const ctx = document.getElementById('statusChart').getContext('2d');
     const chartData = [counts.approve, counts.pre_approve, counts.pending, counts.rejected];
