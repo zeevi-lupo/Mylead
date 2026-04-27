@@ -4,7 +4,7 @@
 
 const PASS_SNK = "666Lupo666";
 const TEAM_PIN = "1234"; // PIN Global
-const URL_API_POSTBACK = "https://script.google.com/macros/s/AKfycbw656yd8oN35SUENaZR1nh1vS2NDsWOrYoDWIE8GyPaIc0BLv98SGBukMEesRG4-QM99Q/exec";
+const URL_API_POSTBACK = "https://script.google.com/macros/s/AKfycbxCkdx7958JC22FPsY3jqUvx1beYN0n_bvDAzly59LF7NlBdS2sZolqOwKo638bEbo5/exec";
 
 let globalPostbackData = []; 
 let statusChartInstance = null; 
