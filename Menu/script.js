@@ -1,5 +1,5 @@
 /**
- * TEAM LUPO - SMART DASHBOARD (FIX SUB-ID, GEO, & PAYOUT)
+ * TEAM LUPO - FINAL STABLE VERSION (FIX STATUS & LEADERBOARD)
  */
 
 const PASS_SNK = "666Lupo666";
@@ -10,7 +10,7 @@ let globalPostbackData = [];
 let statusChartInstance = null; 
 let autoRefreshInterval = null;
 
-// --- FUNGSI SMART: Mencari data meski nama kolom berbeda ---
+// Fungsi Pencari Data Pintar
 function ambilData(row, pilihanKey) {
     for (let key of pilihanKey) {
         if (row[key] !== undefined && row[key] !== null && row[key] !== '') return row[key];
@@ -58,6 +58,7 @@ function showPage(pageId, btnElement) {
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById(pageId).style.display = 'block';
     if(btnElement) btnElement.classList.add('active');
+    
     const titleMap = {
         'page-postback': 'Dashboard Overview',
         'page-ranking': 'Leaderboard Tim 🔥',
@@ -71,11 +72,19 @@ function showPage(pageId, btnElement) {
     document.getElementById('topbar-text').innerText = titleMap[pageId];
 }
 
+// ==========================================
+// FIX LOGIKA STATUS (URUTAN SANGAT PENTING)
+// ==========================================
 function terjemahkanStatus(rawStatus) {
     let s = rawStatus ? String(rawStatus).toLowerCase().trim() : '';
+    
+    // Cek 'pre' DULUAN agar tidak tertelan oleh 'approve'
+    if (s === '3' || s.includes('pre')) return 'pre_approve';
+    
+    // Baru cek status lainnya
     if (s === '0' || s.includes('approve')) return 'approve';
     if (s === '1' || s.includes('pending')) return 'pending';
-    if (s === '3' || s.includes('pre')) return 'pre_approve';
+    
     return 'rejected';
 }
 
@@ -139,7 +148,6 @@ function renderTable(data) {
         else if (s === 'pre_approve') { badgeClass = 'status-pre'; namaStatus = 'PRE-APPROVE'; }
         else if (s === 'pending') badgeClass = 'status-pending';
 
-        // AMBIL DATA DENGAN SMART SEARCH
         const valSubId = ambilData(row, ['sub_1', 'ml_sub1', 'sub_id']);
         const valGeo = ambilData(row, ['country', 'country_code', 'geo']);
         const valPayout = ambilData(row, ['payout', 'payout_decimal']);
@@ -157,15 +165,21 @@ function renderTable(data) {
     });
 }
 
+// ==========================================
+// FIX LEADERBOARD BERDASARKAN STATUS
+// ==========================================
 function renderLeaderboard(data) {
     let kalkulasi = {};
     const skrg = new Date();
     const hariIni = new Date(skrg.getFullYear(), skrg.getMonth(), skrg.getDate());
+
     data.forEach(row => {
         let statusLead = terjemahkanStatus(row.status);
+        // Leaderboard hanya menghitung Approve dan Pre-Approve
         if (statusLead === 'approve' || statusLead === 'pre_approve') {
             const tglData = parseDateString(row.waktu);
             let lolosFilter = false;
+            
             if (currentRankFilter === 'all') lolosFilter = true;
             else if (currentRankFilter === 'today' && tglData.getTime() === hariIni.getTime()) lolosFilter = true;
             else if (currentRankFilter === 'weekly' && (hariIni - tglData) / (1000 * 60 * 60 * 24) <= 7) lolosFilter = true;
@@ -179,25 +193,35 @@ function renderLeaderboard(data) {
                 
                 if (!kalkulasi[nama]) kalkulasi[nama] = { totalLead: 0, approve: 0, pre_approve: 0, pendapatan: 0 };
                 kalkulasi[nama].totalLead += 1;
+                
                 if (statusLead === 'approve') {
                     kalkulasi[nama].approve += 1;
                     kalkulasi[nama].pendapatan += dolar; 
-                } else {
+                } else if (statusLead === 'pre_approve') {
                     kalkulasi[nama].pre_approve += 1;
                 }
             }
         }
     });
+
     let arrayRanking = Object.keys(kalkulasi).map(kunci => ({ nama: kunci, ...kalkulasi[kunci] }));
     arrayRanking.sort((a, b) => b.pendapatan - a.pendapatan);
+    
     const tbody = document.getElementById('tabel-ranking-body');
     if(!tbody) return;
-    tbody.innerHTML = arrayRanking.length === 0 ? '<tr><td colspan="6" class="text-center text-muted py-4">Data kosong.</td></tr>' : '';
+    tbody.innerHTML = ''; 
+
+    if (arrayRanking.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Belum ada data peringkat.</td></tr>';
+        return;
+    }
+
     arrayRanking.forEach((member, index) => {
         let piala = index + 1;
         if(index === 0) piala = '<i class="fa-solid fa-trophy medal rank-1"></i>';
         else if(index === 1) piala = '<i class="fa-solid fa-medal medal rank-2"></i>';
         else if(index === 2) piala = '<i class="fa-solid fa-medal medal rank-3"></i>';
+        
         tbody.innerHTML += `
             <tr>
                 <td class="text-center" style="font-weight:700;">${piala}</td>
@@ -208,6 +232,13 @@ function renderLeaderboard(data) {
                 <td class="text-green" style="font-weight:700;">$ ${member.pendapatan.toFixed(2)}</td>
             </tr>`;
     });
+}
+
+function parseDateString(dateStr) {
+    if (!dateStr || dateStr === '-') return new Date(0);
+    const parts = dateStr.split(' ');
+    const dmy = parts[0].split('/');
+    return new Date(dmy[2], dmy[1] - 1, dmy[0]);
 }
 
 function renderChartAndSummary(data) {
@@ -221,6 +252,7 @@ function renderChartAndSummary(data) {
     document.getElementById('sum-pending').innerText = counts.pending;
     document.getElementById('sum-rejected').innerText = counts.rejected;
     document.getElementById('sum-preapprove').innerText = counts.pre_approve;
+    
     const ctx = document.getElementById('statusChart').getContext('2d');
     const chartData = [counts.approve, counts.pre_approve, counts.pending, counts.rejected];
     if(statusChartInstance) {
@@ -241,6 +273,14 @@ function renderChartAndSummary(data) {
         },
         options: { responsive: true, maintainAspectRatio: false, cutout: '75%' }
     });
+}
+
+let currentRankFilter = 'all'; 
+function changeRankFilter(filterType, btnElement) {
+    currentRankFilter = filterType;
+    document.querySelectorAll('.btn-rank-filter').forEach(btn => btn.classList.remove('active'));
+    btnElement.classList.add('active');
+    applyFilter();
 }
 
 function renderRiwayatPembayaran(payments) {
