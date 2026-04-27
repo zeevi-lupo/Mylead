@@ -1,16 +1,16 @@
 /**
- * TEAM LUPO - FINAL STABLE VERSION (FIX STATUS & LEADERBOARD)
+ * TEAM LUPO - SAAS LOGIC (RESTORED TOOLS & MEDIA + SMART POSTBACK)
  */
 
 const PASS_SNK = "666Lupo666";
-const TEAM_PIN = "1234"; 
-const URL_API_POSTBACK = "https://script.google.com/macros/s/AKfycbxCkdx7958JC22FPsY3jqUvx1beYN0n_bvDAzly59LF7NlBdS2sZolqOwKo638bEbo5/exec";
+const TEAM_PIN = "1234"; // PIN Global
+const URL_API_POSTBACK = "https://script.google.com/macros/s/AKfycbxCkdx7958JC22FPsY3jqUvx1beYN0n_bvDAzly59LF7NlBdS2sZolqOwKo638bEbo5/exec";[cite: 3]
 
 let globalPostbackData = []; 
 let statusChartInstance = null; 
 let autoRefreshInterval = null;
 
-// Fungsi Pencari Data Pintar
+// --- FUNGSI SMART MAPPING (Agar Sub-ID & GEO Selalu Terbaca) ---
 function ambilData(row, pilihanKey) {
     for (let key of pilihanKey) {
         if (row[key] !== undefined && row[key] !== null && row[key] !== '') return row[key];
@@ -18,6 +18,7 @@ function ambilData(row, pilihanKey) {
     return '-';
 }
 
+// Eksekusi otomatis saat buka web
 document.addEventListener("DOMContentLoaded", () => {
     const savedPin = sessionStorage.getItem("lupo_pin");
     if(savedPin === TEAM_PIN) {
@@ -26,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// --- SISTEM LOGIN GLOBAL[cite: 3] ---
 function prosesLogin() {
     const pin = document.getElementById('login-pin').value;
     if (pin === TEAM_PIN) {
@@ -47,12 +49,14 @@ function logout() {
     location.reload(); 
 }
 
+// --- DARK/LIGHT TOGGLE[cite: 3] ---
 function toggleTheme() {
     document.body.classList.toggle('light-mode');
     const icon = document.querySelector('#theme-btn i');
     icon.className = document.body.classList.contains('light-mode') ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
 }
 
+// --- NAVIGASI DASHBOARD[cite: 3] ---
 function showPage(pageId, btnElement) {
     document.querySelectorAll('.page-section').forEach(s => s.style.display = 'none');
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -72,19 +76,12 @@ function showPage(pageId, btnElement) {
     document.getElementById('topbar-text').innerText = titleMap[pageId];
 }
 
-// ==========================================
-// FIX LOGIKA STATUS (URUTAN SANGAT PENTING)
-// ==========================================
+// --- API DATA & TRANSLATOR (FIX STATUS ORDER) ---
 function terjemahkanStatus(rawStatus) {
     let s = rawStatus ? String(rawStatus).toLowerCase().trim() : '';
-    
-    // Cek 'pre' DULUAN agar tidak tertelan oleh 'approve'
-    if (s === '3' || s.includes('pre')) return 'pre_approve';
-    
-    // Baru cek status lainnya
+    if (s === '3' || s.includes('pre')) return 'pre_approve'; // Cek PRE dulusn
     if (s === '0' || s.includes('approve')) return 'approve';
     if (s === '1' || s.includes('pending')) return 'pending';
-    
     return 'rejected';
 }
 
@@ -96,7 +93,7 @@ function fetchPostbackData() {
         .then(data => {
             if(data.konversi) {
                 globalPostbackData = data.konversi.reverse();
-                renderRiwayatPembayaran(data.pembayaran || []);
+                renderRiwayatPembayaran(data.pembayaran || []);[cite: 3]
             } else {
                 globalPostbackData = Array.isArray(data) ? data.reverse() : [];
             }
@@ -132,6 +129,7 @@ function applyFilter() {
     renderLeaderboard(globalPostbackData);
 }
 
+// --- RENDER TABEL & CHART ---
 function renderTable(data) {
     const tbody = document.getElementById('tabel-postback-body');
     if(!tbody) return;
@@ -160,30 +158,22 @@ function renderTable(data) {
                 <td style="font-weight: 600;">${valGeo.toUpperCase()}</td>
                 <td class="text-green" style="font-weight: 600;">$${valPayout === '-' ? '0' : valPayout}</td>
                 <td><span class="badge-status ${badgeClass}">${namaStatus}</span></td>
-            </tr>
-        `;
+            </tr>`;
     });
 }
 
-// ==========================================
-// FIX LEADERBOARD BERDASARKAN STATUS
-// ==========================================
 function renderLeaderboard(data) {
     let kalkulasi = {};
     const skrg = new Date();
     const hariIni = new Date(skrg.getFullYear(), skrg.getMonth(), skrg.getDate());
-
     data.forEach(row => {
         let statusLead = terjemahkanStatus(row.status);
-        // Leaderboard hanya menghitung Approve dan Pre-Approve
         if (statusLead === 'approve' || statusLead === 'pre_approve') {
             const tglData = parseDateString(row.waktu);
-            let lolosFilter = false;
-            
-            if (currentRankFilter === 'all') lolosFilter = true;
-            else if (currentRankFilter === 'today' && tglData.getTime() === hariIni.getTime()) lolosFilter = true;
-            else if (currentRankFilter === 'weekly' && (hariIni - tglData) / (1000 * 60 * 60 * 24) <= 7) lolosFilter = true;
-            else if (currentRankFilter === 'monthly' && tglData.getMonth() === skrg.getMonth()) lolosFilter = true;
+            let lolosFilter = (currentRankFilter === 'all') || 
+                (currentRankFilter === 'today' && tglData.getTime() === hariIni.getTime()) ||
+                (currentRankFilter === 'weekly' && (hariIni - tglData) / (1000 * 60 * 60 * 24) <= 7) ||
+                (currentRankFilter === 'monthly' && tglData.getMonth() === skrg.getMonth());
             
             if (lolosFilter) {
                 const subIdRaw = ambilData(row, ['sub_1', 'ml_sub1', 'sub_id']);
@@ -193,35 +183,25 @@ function renderLeaderboard(data) {
                 
                 if (!kalkulasi[nama]) kalkulasi[nama] = { totalLead: 0, approve: 0, pre_approve: 0, pendapatan: 0 };
                 kalkulasi[nama].totalLead += 1;
-                
                 if (statusLead === 'approve') {
                     kalkulasi[nama].approve += 1;
                     kalkulasi[nama].pendapatan += dolar; 
-                } else if (statusLead === 'pre_approve') {
+                } else {
                     kalkulasi[nama].pre_approve += 1;
                 }
             }
         }
     });
-
     let arrayRanking = Object.keys(kalkulasi).map(kunci => ({ nama: kunci, ...kalkulasi[kunci] }));
     arrayRanking.sort((a, b) => b.pendapatan - a.pendapatan);
-    
     const tbody = document.getElementById('tabel-ranking-body');
     if(!tbody) return;
-    tbody.innerHTML = ''; 
-
-    if (arrayRanking.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Belum ada data peringkat.</td></tr>';
-        return;
-    }
-
+    tbody.innerHTML = arrayRanking.length === 0 ? '<tr><td colspan="6" class="text-center text-muted py-4">Memuat ranking...</td></tr>' : '';
     arrayRanking.forEach((member, index) => {
         let piala = index + 1;
         if(index === 0) piala = '<i class="fa-solid fa-trophy medal rank-1"></i>';
         else if(index === 1) piala = '<i class="fa-solid fa-medal medal rank-2"></i>';
         else if(index === 2) piala = '<i class="fa-solid fa-medal medal rank-3"></i>';
-        
         tbody.innerHTML += `
             <tr>
                 <td class="text-center" style="font-weight:700;">${piala}</td>
@@ -283,6 +263,76 @@ function changeRankFilter(filterType, btnElement) {
     applyFilter();
 }
 
+// --- FUNGSI TOOLS & MEDIA (ASLI 100%)[cite: 3] ---
+const linksData = {
+    'thorfin': { 'monopoly go': "https://tinyurl.com/yadtctrk", 'dice dreams': "https://tinyurl.com/a9yfkaup", 'travel town': "https://tinyurl.com/3esk5wtj", 'gossip harbor': "https://tinyurl.com/5469kxp7", 'match masters': "https://tinyurl.com/c3axd3nj"},
+    'poseidon': { 'monopoly go': "https://tinyurl.com/mtd6uwhw", 'dice dreams': "https://tinyurl.com/2unv3yv2", 'travel town': "https://tinyurl.com/y9j29w6t", 'gossip harbor': "https://tinyurl.com/muxk8ze6", 'match masters': "https://tinyurl.com/43bcadbn"},
+    'luxury33': { 'monopoly go': "https://tinyurl.com/zc9zbust", 'dice dreams': "https://tinyurl.com/mszxnme8", 'travel town': "https://tinyurl.com/26tefvej", 'gossip harbor': "https://tinyurl.com/y494w6nt", 'match masters': "" },
+    'batako': { 'monopoly go': "https://tinyurl.com/5n8mvu3y", 'dice dreams': "https://tinyurl.com/2kkf495x", 'travel town': "https://tinyurl.com/42avcdk7", 'gossip harbor': "https://tinyurl.com/3cuhjtmz", 'match masters': "" },
+    'kahuna': { 'monopoly go': "https://tinyurl.com/2pzzwz6e", 'dice dreams': "https://tinyurl.com/pu3w5k3", 'travel town': "https://tinyurl.com/mpjr8eck", 'gossip harbor': "https://tinyurl.com/3kz2mvu4", 'match masters': "" },
+    'angin': { 'monopoly go': "https://tinyurl.com/5n98ww92", 'dice dreams': "https://tinyurl.com/mt8rr4r3", 'travel town': "https://tinyurl.com/47xer297", 'gossip harbor': "https://tinyurl.com/rmddn4p", 'match masters': "https://tinyurl.com/vf69znvn"},
+    'hiltopia': { 'monopoly go': "https://tinyurl.com/3259y237", 'dice dreams': "https://tinyurl.com/3j3cmkm6", 'travel town': "https://tinyurl.com/3mf3vfs6", 'gossip harbor': "https://tinyurl.com/yc43wh6k", 'match masters': "" }, 
+    'ucup': { 'travel town': "https://tinyurl.com/yfy697c2", 'gossip harbor': "https://tinyurl.com/k57ssmwe", 'match masters': "" }
+};
+
+const vidsData = {
+    'monopoly': ['video-monopoly-1.mp4','video-monopoly-2.mp4','video-monopoly-3.mp4','video-monopoly-4.mp4'], 
+    'gossip': ['video-gossip-1.mp4','video-gossip-2.mp4','video-gossip-3.mp4','video-gossip-4'],
+    'match': ['video-match-1.mp4','video-match-2.mp4'], 
+    'travel': ['video-travel-1.mp4','video-travel-2.mp4','video-travel-3.mp4'], 
+    'dicedreams': ['video-dicedreams-1.mp4'] 
+};
+
+function openLink(id, nama) {
+    document.getElementById('list-member').style.display = 'none';
+    document.getElementById('detail-link').style.display = 'block';
+    document.getElementById('active-name').innerText = "Sub-ID: " + nama;
+    const area = document.getElementById('render-links');
+    area.innerHTML = '';
+    if(!linksData[id]) return;
+    for (const [game, url] of Object.entries(linksData[id])) {
+        if(url === "-" || url === "") continue;
+        area.innerHTML += `
+            <div class="link-box">
+                <span style="text-transform: capitalize;">${game}</span>
+                <input type="text" value="${url}" id="in-${id}-${game.replace(/\s+/g, '')}" readonly>
+                <button class="btn-refresh" onclick="copyFunc('in-${id}-${game.replace(/\s+/g, '')}', this)"><i class="fa-solid fa-copy"></i> Salin</button>
+            </div>`;
+    }
+}
+function backToMembers() {
+    document.getElementById('detail-link').style.display = 'none';
+    document.getElementById('list-member').style.display = 'grid';
+}
+function copyFunc(id, btn) {
+    const input = document.getElementById(id);
+    if(input) {
+        input.select(); navigator.clipboard.writeText(input.value);
+        btn.innerHTML = "<i class='fa-solid fa-check'></i> Disalin"; 
+        btn.style.background = "#10b981";
+        setTimeout(() => { 
+            btn.innerHTML = "<i class='fa-solid fa-copy'></i> Salin"; 
+            btn.style.background = "var(--primary)"; 
+        }, 1500);
+    }
+}
+function openVideo(id, judul) {
+    document.getElementById('video-folder-view').style.display = 'none';
+    document.getElementById('video-list-view').style.display = 'block';
+    document.getElementById('active-game-title').innerText = "Video " + judul;
+    document.getElementById('render-videos').innerHTML = vidsData[id].map((v, i) => `
+        <div class="video-card">
+            <video src="${v}" controls style="width: 100%; max-width: 100%; height: auto; max-height: 400px; background: #000; object-fit: contain;"></video>
+            <a href="${v}" download><i class="fa-solid fa-download"></i> Unduh Part ${i+1}</a>
+        </div>`).join('');
+}
+function closeVideo() {
+    document.getElementById('video-folder-view').style.display = 'grid';
+    document.getElementById('video-list-view').style.display = 'none';
+    document.querySelectorAll('video').forEach(v => v.pause());
+}
+
+// --- RENDER RIWAYAT PEMBAYARAN[cite: 3] ---
 function renderRiwayatPembayaran(payments) {
     const tbody = document.getElementById('tabel-riwayat-body');
     if(!tbody) return; 
@@ -304,7 +354,6 @@ function renderRiwayatPembayaran(payments) {
                 <td class="text-blue" style="font-weight: 700;">${valSubId.toUpperCase()}</td>
                 <td class="text-green" style="font-weight: 700;">$${valNominal === '-' ? '0' : valNominal}</td>
                 <td>${badge}</td>
-            </tr>
-        `;
+            </tr>`;
     });
 }
